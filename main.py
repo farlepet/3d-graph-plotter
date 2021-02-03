@@ -43,7 +43,6 @@ def calcMatrix(f, gconf):
     return mat
 
 def generateVectors(mat, gconf):
-    # TODO: Z scaling
     vec = np.ndarray((gconf['density']['x'], gconf['density']['y'], 3))
     dx = (gconf['limits']['xmax'] - gconf['limits']['xmin']) / gconf['density']['x']
     dy = (gconf['limits']['ymax'] - gconf['limits']['ymin']) / gconf['density']['y']
@@ -56,6 +55,9 @@ def generateVectors(mat, gconf):
 
 def rotateVectors(vec, gconf):
     rvec = np.ndarray((gconf['density']['x'], gconf['density']['y'], 3))
+    cx = gconf['density']['x'] / 2
+    cy = gconf['density']['y'] / 2
+    # Generate rotation matrices
     rx = np.deg2rad(gconf['rotation']['x'])
     ry = np.deg2rad(gconf['rotation']['y'])
     rz = np.deg2rad(gconf['rotation']['z'])
@@ -68,23 +70,29 @@ def rotateVectors(vec, gconf):
     rotx = np.array([[ 1,           0,           0         ],
                      [ 0,           np.cos(rx), -np.sin(rx)],
                      [ 0,           np.sin(rx),  np.cos(rx)]])
-    rot = np.matmul(np.matmul(rotz, roty), rotx)
+
     for x in range(vec.shape[0]):
         for y in range(vec.shape[1]):
-            # TODO: Subtract offset so we are rotating about the correct point (the center of the graph)
             tmp = np.matmul(rotz, vec[x,y])
             tmp = np.matmul(roty, tmp.T)
             
             rvec[x,y] = np.matmul(rotx, tmp.T)
+    
+    # Re-position after rotation
+    rvec = rvec - np.array([np.min(rvec[:,:,0]),
+                            np.min(rvec[:,:,1]),
+                            0])
     return rvec
 
 def gcodeDrawto(x, y, pconf):
-    # TODO: Account for pen offset
-    return "G1 F%f X%f Y%f\n"%(pconf['speed']['draw'],x,y)
+    return "G1 F%f X%f Y%f\n"%(pconf['speed']['draw'],
+                               x + pconf["origin"]["x"],
+                               y + pconf["origin"]["y"])
 
 def gcodeMoveto(x, y,  pconf):
-    # TODO: Account for pen offset
-    return "G1 F%f X%f Y%f\n"%(pconf['speed']['travel'],x,y)
+    return "G1 F%f X%f Y%f\n"%(pconf['speed']['travel'],
+                               x + pconf["origin"]["x"],
+                               y + pconf["origin"]["y"])
 
 def gcodePlunge(pconf):
     return "G1 F%f Z%f\n"%(pconf['speed']['plunge'], pconf['pen']['plunge'])

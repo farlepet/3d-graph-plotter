@@ -2,14 +2,10 @@ plotter: # All units in mm
   size:
     width:  280
     height: 215
-  origin:
+  origin: # Position of negative-most corner
     x: 0
     y: 0
-    z: 0
   pen:
-    offset: # Subtracted from commanded positions
-      x: 0
-      y: 0
     plunge: -1
     lift:    2
   speed: # mm/s
