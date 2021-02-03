@@ -11,11 +11,12 @@ plotter: # All units in mm
       x: 0
       y: 0
     plunge: -1
-    lift:    50
+    lift:    2
   speed: # mm/s
     plunge: 100
     travel: 3000
     draw:   1500
+  output: "graph.gcode"
 
 graph:
   limits:  # Graph limits, unitless

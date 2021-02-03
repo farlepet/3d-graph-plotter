@@ -21,7 +21,11 @@ def main():
 
     gcode = generateGcode(rvec, conf['graph'], conf['plotter'])
 
-    print(gcode)
+    with open(conf["plotter"]["output"], "w") as stream:
+        try:
+            stream.write(gcode)
+        except:
+            exit(1)
 
 def calcMatrix(f, gconf):
     mat = np.ndarray((gconf['density']['x'], gconf['density']['y']))
